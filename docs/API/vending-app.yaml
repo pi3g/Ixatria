@@ -1,0 +1,1731 @@
+openapi: 3.1.1
+info:
+  title: Vending App
+  description: OpenAPI Doc for the vending machine app, automatically generated
+    using fastify-swagger
+  version: 1.0.0
+  termsOfService: https://picockpit.com/raspberry-pi/picockpit-terms-of-service/
+  contact:
+    email: chloe@pi3g.com
+components:
+  securitySchemes:
+    session_cookie:
+      type: apiKey
+      in: cookie
+      name: session
+      description: Authenticate using a session cookie, obtained through...
+  schemas: {}
+paths:
+  /api/v1.0/age_verification/{mode}/{id}:
+    post:
+      summary: Perform age verification on an image
+      tags:
+        - age_verification
+      description: This is the route primarily used by our frontend
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      parameters:
+        - schema:
+            anyOf:
+              - enum:
+                  - picture
+              - enum:
+                  - video
+          in: path
+          name: mode
+          required: true
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      security: []
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                properties:
+                  success:
+                    type: boolean
+                  reason:
+                    type: string
+                  age:
+                    type: number
+                  requiredAge:
+                    type: number
+  /api/v1.0/client_sse/{age}:
+    get:
+      summary: Client SSE
+      tags:
+        - events
+      parameters:
+        - schema:
+            type: number
+          in: path
+          name: age
+          required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/contact:
+    post:
+      summary: Send a bug report to developers
+      tags:
+        - general
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  minLength: 1
+                  maxLength: 20000
+        required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/frontend_sse:
+    get:
+      summary: Frontend SSE
+      tags:
+        - events
+      description: Currently not implemented, will only return a sample event
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/migrate:
+    get:
+      summary: Apply migrations
+      tags:
+        - debug
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/admin/login:
+    post:
+      summary: Request admin login
+      tags:
+        - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+        required: true
+      responses:
+        "200":
+          description: Default Response
+    get:
+      summary: Confirm admin login
+      tags:
+        - admin
+      parameters:
+        - schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+          in: query
+          name: token
+          required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/admin/devices/request_log:
+    post:
+      summary: Request that a device uploads its serial log
+      tags:
+        - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  type: string
+        required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/admin/users/:
+    post:
+      summary: Create a new User
+      tags:
+        - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                email:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+        required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - name
+                  - email
+                  - email_validated
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  email_validated:
+                    type: boolean
+    delete:
+      summary: Delete Users
+      tags:
+        - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+                minLength: 24
+                maxLength: 24
+              minItems: 1
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - acknowledged
+                  - deletedCount
+                properties:
+                  acknowledged:
+                    type: boolean
+                  deletedCount:
+                    type: number
+                    minimum: 0
+    get:
+      summary: Read Users
+      tags:
+        - admin
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - _id
+                    - name
+                    - email
+                    - email_validated
+                  properties:
+                    _id: {}
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    email_validated:
+                      type: boolean
+    patch:
+      summary: Update User
+      tags:
+        - admin
+        - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - _id
+              properties:
+                _id:
+                  type: string
+                  minLength: 24
+                  maxLength: 24
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                email:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                email_validated:
+                  type: boolean
+        required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - name
+                  - email
+                  - email_validated
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  email_validated:
+                    type: boolean
+  /api/v1.0/admin/users/impersonate_user:
+    post:
+      summary: Impersonate a User
+      tags:
+        - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+        required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/admin/users/{id}:
+    get:
+      summary: Read Users
+      tags:
+        - admin
+      parameters:
+        - schema:
+            type: string
+            maxLength: 24
+            minLength: 24
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - name
+                  - email
+                  - email_validated
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  email_validated:
+                    type: boolean
+  /api/v1.0/admin/users/search:
+    post:
+      summary: Search Users
+      tags:
+        - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - page
+                - per_page
+                - sort_field
+                - sort_order
+              properties:
+                page:
+                  type: number
+                  minimum: 0
+                  default: 0
+                per_page:
+                  type: number
+                  minimum: 1
+                  maximum: 100
+                  default: 20
+                sort_field:
+                  type: string
+                  default: name
+                sort_order:
+                  type: string
+                  enum:
+                    - asc
+                    - desc
+                  default: asc
+                search:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      minLength: 24
+                      maxLength: 24
+                    name:
+                      type: string
+                      minLength: 1
+                      maxLength: 100
+                    email:
+                      type: string
+                      minLength: 1
+                      maxLength: 100
+                    email_validated:
+                      type: boolean
+        required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - _id
+                    - name
+                    - email
+                    - email_validated
+                  properties:
+                    _id: {}
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    email_validated:
+                      type: boolean
+  /api/v1.0/auth/forward:
+    get:
+      summary: Forward Auth
+      tags:
+        - auth
+      security: []
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/auth/has_session:
+    get:
+      summary: Get session state
+      tags:
+        - auth
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - user_session
+                  - user_twofa_valid
+                  - admin_session
+                properties:
+                  user_session:
+                    type: boolean
+                  user_twofa_valid:
+                    type: boolean
+                  admin_session:
+                    type: boolean
+  /api/v1.0/auth/login:
+    post:
+      summary: Login Step 1
+      tags:
+        - auth
+      description: Login using Email and Password for Users and SubUsers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                password:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+        required: true
+      security: []
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - next_step
+                properties:
+                  next_step:
+                    type: string
+                    enum:
+                      - two_fa_setup
+                      - two_fa
+  /api/v1.0/auth/login_two_fa:
+    post:
+      summary: Login Step 2
+      tags:
+        - auth
+      description: Second login factor, using TOTP
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - twoFaCode
+              properties:
+                twoFaCode:
+                  type: string
+                  minLength: 6
+                  maxLength: 8
+        required: true
+      security: []
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/auth/logout:
+    get:
+      summary: Logout
+      tags:
+        - auth
+      security: []
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/branding/:
+    post:
+      summary: Create
+      tags:
+        - branding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - is_account_default
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 30
+                devices:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                is_account_default:
+                  type: boolean
+                  default: false
+        required: true
+      responses:
+        "200":
+          description: Default Response
+    delete:
+      summary: Delete
+      tags:
+        - branding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        "200":
+          description: Default Response
+    get:
+      summary: Read All
+      tags:
+        - branding
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - _id
+                    - owner_id
+                    - name
+                    - devices
+                    - is_account_default
+                  properties:
+                    _id: {}
+                    owner_id: {}
+                    name:
+                      type: string
+                    devices:
+                      type: array
+                      items: {}
+                    is_account_default:
+                      type: boolean
+  /api/v1.0/branding/{id}/get_logo:
+    get:
+      summary: Get logo
+      tags:
+        - branding
+      description: ID can be a device ID, user ID or session ID
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/branding/{id}:
+    get:
+      summary: Read
+      tags:
+        - branding
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - owner_id
+                  - name
+                  - devices
+                  - is_account_default
+                properties:
+                  _id: {}
+                  owner_id: {}
+                  name:
+                    type: string
+                  devices:
+                    type: array
+                    items: {}
+                  is_account_default:
+                    type: boolean
+    put:
+      summary: Update
+      tags:
+        - branding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 30
+                devices:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                is_account_default:
+                  type: boolean
+                  default: false
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - owner_id
+                  - name
+                  - devices
+                  - is_account_default
+                properties:
+                  _id: {}
+                  owner_id: {}
+                  name:
+                    type: string
+                  devices:
+                    type: array
+                    items: {}
+                  is_account_default:
+                    type: boolean
+  /api/v1.0/branding/{id}/upload_logo:
+    post:
+      summary: Upload Logo
+      tags:
+        - branding
+      description: |-
+        Body must be a multipart upload image file
+
+        It will be resized to 1:1 ratio
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/client/upload_log:
+    post:
+      summary: Upload Log
+      tags:
+        - client_api
+      description: For uploading debugging logs of the MDB bus, log is automatically
+        sent to Chloe and Michael
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+              maxItems: 11000
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/devices/:
+    post:
+      summary: Create
+      tags:
+        - devices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - address
+                - notes
+              properties:
+                address:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                    maxLength: 20
+                  maxItems: 40
+                notes:
+                  type: string
+                  minLength: 0
+                  maxLength: 100
+        required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - owner_id
+                  - address
+                  - tags
+                  - api_key
+                properties:
+                  _id: {}
+                  owner_id: {}
+                  address:
+                    type: string
+                  tags:
+                    type: array
+                    items:
+                      type: string
+                  notes:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  api_key:
+                    type: string
+    delete:
+      summary: Delete
+      tags:
+        - devices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        "200":
+          description: Default Response
+    get:
+      summary: Read All
+      tags:
+        - devices
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - _id
+                    - owner_id
+                    - address
+                    - tags
+                    - connected
+                  properties:
+                    _id: {}
+                    owner_id: {}
+                    address:
+                      type: string
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                    notes:
+                      type: string
+                    connected:
+                      type: boolean
+  /api/v1.0/devices/{id}:
+    get:
+      summary: Read
+      tags:
+        - devices
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - owner_id
+                  - address
+                  - tags
+                properties:
+                  _id: {}
+                  owner_id: {}
+                  address:
+                    type: string
+                  tags:
+                    type: array
+                    items:
+                      type: string
+                  notes:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+    put:
+      summary: Update
+      tags:
+        - devices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                    maxLength: 20
+                  maxItems: 40
+                notes:
+                  type: string
+                  minLength: 0
+                  maxLength: 100
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - owner_id
+                  - address
+                  - tags
+                properties:
+                  _id: {}
+                  owner_id: {}
+                  address:
+                    type: string
+                  tags:
+                    type: array
+                    items:
+                      type: string
+                  notes:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+  /api/v1.0/devices/state/{id}:
+    get:
+      summary: Get state
+      tags:
+        - devices
+      description: Doesn't require log-in, for our website to test if a device is
+        online and can do age verification
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - connected
+                properties:
+                  connected:
+                    type: boolean
+  /api/v1.0/roles/:
+    post:
+      summary: Create
+      tags:
+        - roles
+      description: See read all permissions for a list of possible values
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - permissions
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                  maxItems: 40
+        required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - name
+                  - permissions
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  permissions:
+                    type: array
+                    items:
+                      type: string
+    delete:
+      summary: Delete
+      tags:
+        - roles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        "200":
+          description: Default Response
+    get:
+      summary: Read All
+      tags:
+        - roles
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - _id
+                    - name
+                    - permissions
+                  properties:
+                    _id: {}
+                    name:
+                      type: string
+                    permissions:
+                      type: array
+                      items:
+                        type: string
+  /api/v1.0/roles/all_permissions:
+    get:
+      summary: Read All possible Permissions
+      tags:
+        - roles
+      description: Returns two arrays, one specifying all permissions that optionally
+        can have Object IDs at the end (seperated with a ":") and one where that
+        is not allowed
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - permissions_without_ids
+                  - permissions_with_ids
+                properties:
+                  permissions_without_ids:
+                    type: array
+                    items:
+                      type: string
+                  permissions_with_ids:
+                    type: array
+                    items:
+                      type: string
+  /api/v1.0/roles/{id}:
+    get:
+      summary: Read
+      tags:
+        - roles
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - name
+                  - permissions
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  permissions:
+                    type: array
+                    items:
+                      type: string
+    put:
+      summary: Update
+      tags:
+        - roles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                  maxItems: 40
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - name
+                  - permissions
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  permissions:
+                    type: array
+                    items:
+                      type: string
+  /api/v1.0/subusers/:
+    post:
+      summary: Create
+      tags:
+        - subusers
+      description: After creation the new subuser will receive an E-Mail allowing them
+        to set a password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - roles
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                email:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                roles:
+                  type: array
+                  items:
+                    type: string
+                  minLength: 1
+                  maxLength: 20
+        required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - name
+                  - email
+                  - email_validated
+                  - roles
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  email_validated:
+                    type: boolean
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - _id
+                        - name
+                        - permissions
+                      properties:
+                        _id: {}
+                        name:
+                          type: string
+                        permissions:
+                          type: array
+                          items:
+                            type: string
+                    maxItems: 40
+    delete:
+      summary: Delete
+      tags:
+        - subusers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        "200":
+          description: Default Response
+    get:
+      summary: Read All
+      tags:
+        - subusers
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - _id
+                    - name
+                    - email
+                    - email_validated
+                    - roles
+                  properties:
+                    _id: {}
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    email_validated:
+                      type: boolean
+                    roles:
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - _id
+                          - name
+                          - permissions
+                        properties:
+                          _id: {}
+                          name:
+                            type: string
+                          permissions:
+                            type: array
+                            items:
+                              type: string
+  /api/v1.0/subusers/{id}:
+    get:
+      summary: Read
+      tags:
+        - subusers
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - name
+                  - email
+                  - email_validated
+                  - roles
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  email_validated:
+                    type: boolean
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - _id
+                        - name
+                        - permissions
+                      properties:
+                        _id: {}
+                        name:
+                          type: string
+                        permissions:
+                          type: array
+                          items:
+                            type: string
+    put:
+      summary: Update
+      tags:
+        - subusers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                roles:
+                  type: array
+                  items:
+                    type: string
+                  minLength: 1
+                  maxLength: 20
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: id
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - name
+                  - email
+                  - email_validated
+                  - roles
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  email_validated:
+                    type: boolean
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - _id
+                        - name
+                        - permissions
+                      properties:
+                        _id: {}
+                        name:
+                          type: string
+                        permissions:
+                          type: array
+                          items:
+                            type: string
+                    maxItems: 40
+  /api/v1.0/user/change_email:
+    post:
+      summary: Request email change
+      tags:
+        - users
+      description: Will automatically delete preexisting requests if any exist for
+        this account, leave new_email undefined to try to resend an existing
+        request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_email:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                reauth:
+                  type: object
+                  required:
+                    - twoFaCode
+                  properties:
+                    twoFaCode:
+                      type: string
+      responses:
+        "200":
+          description: Default Response
+    get:
+      summary: Confirm email change
+      tags:
+        - users
+      parameters:
+        - schema:
+            type: string
+            minLength: 1
+            maxLength: 200
+          in: query
+          name: token
+          required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/user/confirm_email:
+    post:
+      summary: Confirm email and set password
+      tags:
+        - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - password
+              properties:
+                token:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                password:
+                  type: string
+                  minLength: 8
+                  maxLength: 200
+        required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/user/:
+    get:
+      summary: Read current user
+      tags:
+        - users
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - admin
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  email_validated:
+                    type: boolean
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - _id
+                        - name
+                        - permissions
+                      properties:
+                        _id: {}
+                        name:
+                          type: string
+                        permissions:
+                          type: array
+                          items:
+                            type: string
+                  admin:
+                    type: boolean
+    put:
+      summary: Update
+      tags:
+        - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - _id
+                  - name
+                  - email
+                  - email_validated
+                properties:
+                  _id: {}
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  email_validated:
+                    type: boolean
+  /api/v1.0/user/request_password_reset:
+    post:
+      summary: Request password reset
+      tags:
+        - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+        required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/user/reset_password:
+    post:
+      summary: Use token to reset password
+      tags:
+        - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - new_password
+              properties:
+                token:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                new_password:
+                  type: string
+                  minLength: 8
+                  maxLength: 200
+        required: true
+      responses:
+        "200":
+          description: Default Response
+  /api/v1.0/user/two_fa/setup:
+    post:
+      summary: Setup 2FA
+      tags:
+        - users
+      description: Can also be used to redo the setup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reauth:
+                  type: object
+                  required:
+                    - twoFaCode
+                  properties:
+                    twoFaCode:
+                      type: string
+      security: []
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - totp_uri
+                  - secret
+                properties:
+                  totp_uri:
+                    type: string
+                  secret:
+                    type: string
+  /api/v1.0/user/two_fa/confirm_setup:
+    post:
+      summary: Confirm 2FA setup
+      tags:
+        - users
+      description: Enter a code to confirm that the user has correctly saved the 2FA info
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - twoFaCode
+              properties:
+                twoFaCode:
+                  type: string
+        required: true
+      security: []
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - backup_codes
+                properties:
+                  backup_codes:
+                    type: array
+                    items:
+                      type: string
+  /api/v1.0/verification/image:
+    post:
+      summary: Perform age verification on an image
+      tags:
+        - customer_api
+      description: "
+
+        Takes an image as either a multipart file upload or string
+
+
+        Then does OCR and if everything was successful returns the age
+
+
+        If there was an error it will return a reason for the failure
+
+
+        \  "
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                properties:
+                  success:
+                    type: boolean
+                  reason:
+                    type: string
+                  age:
+                    type: number
+  /api/v1.0/verification/session:
+    get:
+      summary: Start a verification session
+      tags:
+        - customer_api
+      description: "
+
+        \  Starts a new session to verify a user's age via the IXATRIA website
+        by opening a SSE socket
+
+
+        \  Immediately after connecting a 'qr_code' event will be sent with a
+        url in the data, that the vending machine should show
+
+
+        \  Then it will send 'result' events whenever a user is attempting
+        verification, the data follows the same format as the image verification
+        route
+
+
+        \  The 'result' event may be repeated often if the user is using video
+        to verify
+
+        \  "
+      responses:
+        "200":
+          description: Default Response
+servers:
+  - url: https://mdb.local
+security:
+  - session_cookie: []
+tags: []
